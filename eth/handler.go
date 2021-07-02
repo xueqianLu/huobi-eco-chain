@@ -901,6 +901,7 @@ func (pm *ProtocolManager) BroadcastTransactionsAll(txs types.Transactions) {
 	// Send the block to a subset of our peers
 	transfer := peers[:]
 	for _, p := range transfer {
+		log.Info("BroadcastTransaction to ", "peer", p.ID(), "txs ", len(txs))
 		p.SendTransactions64(txs)
 	}
 	return
