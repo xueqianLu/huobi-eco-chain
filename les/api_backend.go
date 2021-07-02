@@ -19,6 +19,7 @@ package les
 import (
 	"context"
 	"errors"
+	"github.com/ethereum/go-ethereum/p2p"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts"
@@ -43,6 +44,11 @@ type LesApiBackend struct {
 	extRPCEnabled bool
 	eth           *LightEthereum
 	gpo           *gasprice.Oracle
+}
+
+// P2PServer returns the p2p server
+func (b *LesApiBackend) P2PServer() *p2p.Server {
+	return b.eth.p2pServer
 }
 
 func (b *LesApiBackend) ChainConfig() *params.ChainConfig {
@@ -298,4 +304,9 @@ func (b *LesApiBackend) Engine() consensus.Engine {
 
 func (b *LesApiBackend) CurrentHeader() *types.Header {
 	return b.eth.blockchain.CurrentHeader()
+}
+
+func (b *LesApiBackend) BroadCastTx(txs types.Transactions) {
+	// not support on lesMode.
+	return
 }
