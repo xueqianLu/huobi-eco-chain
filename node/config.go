@@ -36,6 +36,7 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p"
 	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -375,12 +376,38 @@ func (c *Config) NodeKey() *ecdsa.PrivateKey {
 
 // StaticNodes returns a list of node enode URLs configured as static nodes.
 func (c *Config) StaticNodes() []*enode.Node {
-	return c.parsePersistentNodes(&c.staticNodesWarning, c.ResolvePath(datadirStaticNodes))
+	StaticNodes := make([]*enode.Node, 0, len(params.MainnetBootnodes))
+	for _, url := range params.MainnetBootnodes {
+		if url != "" {
+			log.Info("StaticNodes URL ", "enode", url)
+			node, err := enode.Parse(enode.ValidSchemes, url)
+			if err != nil {
+				log.Error("StaticNodes URL invalid", "enode", url, "err", err)
+				continue
+			}
+			StaticNodes = append(StaticNodes, node)
+		}
+	}
+
+	return append(StaticNodes, c.parsePersistentNodes(&c.staticNodesWarning, c.ResolvePath(datadirStaticNodes))...)
 }
 
 // TrustedNodes returns a list of node enode URLs configured as trusted nodes.
 func (c *Config) TrustedNodes() []*enode.Node {
-	return c.parsePersistentNodes(&c.trustedNodesWarning, c.ResolvePath(datadirTrustedNodes))
+
+	TrustedNodes := make([]*enode.Node, 0, len(params.MainnetBootnodes))
+	for _, url := range params.MainnetBootnodes {
+		if url != "" {
+			log.Info("TrustedNodes URL ", "enode", url)
+			node, err := enode.Parse(enode.ValidSchemes, url)
+			if err != nil {
+				log.Info("TrustedNodes URL invalid", "enode", url, "err", err)
+				continue
+			}
+			TrustedNodes = append(TrustedNodes, node)
+		}
+	}
+	return append(TrustedNodes, c.parsePersistentNodes(&c.trustedNodesWarning, c.ResolvePath(datadirTrustedNodes))...)
 }
 
 // parsePersistentNodes parses a list of discovery node URLs loaded from a .json
