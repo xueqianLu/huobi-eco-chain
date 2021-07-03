@@ -19,6 +19,7 @@ package ethapi
 
 import (
 	"context"
+	"github.com/ethereum/go-ethereum/p2p"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts"
@@ -39,6 +40,8 @@ import (
 // Backend interface provides the common API services (that are provided by
 // both full and light clients) with access to necessary functions.
 type Backend interface {
+	P2PServer() *p2p.Server
+	BroadCastTx(txs types.Transactions)
 	// General Ethereum API
 	Downloader() *downloader.Downloader
 	ProtocolVersion() int

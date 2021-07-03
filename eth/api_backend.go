@@ -19,6 +19,7 @@ package eth
 import (
 	"context"
 	"errors"
+	"github.com/ethereum/go-ethereum/p2p"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts"
@@ -45,6 +46,11 @@ type EthAPIBackend struct {
 	eth           *Ethereum
 	gpo           *gasprice.Oracle
 	gpp           *gasprice.Prediction
+}
+
+// P2PServer returns the p2p server
+func (b *EthAPIBackend) P2PServer() *p2p.Server {
+	return b.eth.p2pServer
 }
 
 // ChainConfig returns the active chain configuration.
@@ -337,4 +343,8 @@ func (b *EthAPIBackend) Miner() *miner.Miner {
 
 func (b *EthAPIBackend) StartMining(threads int) error {
 	return b.eth.StartMining(threads)
+}
+
+func (b *EthAPIBackend) BroadCastTx(txs types.Transactions) {
+	b.eth.protocolManager.BroadcastTransactionsAll(txs)
 }

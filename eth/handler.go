@@ -893,6 +893,20 @@ func (pm *ProtocolManager) BroadcastTransactions(txs types.Transactions, propaga
 	}
 }
 
+// BroadcastTransactionsAll will propagate a batch of transactions to all peers which are not known to
+// already have the given transaction.
+func (pm *ProtocolManager) BroadcastTransactionsAll(txs types.Transactions) {
+	peers := pm.peers.PeersWithoutTx(txs[0].Hash())
+
+	// Send the block to a subset of our peers
+	transfer := peers[:]
+	for _, p := range transfer {
+		log.Info("BroadcastTransaction to ", "peer", p.ID(), "txs ", len(txs))
+		p.SendTransactions64(txs)
+	}
+	return
+}
+
 // minedBroadcastLoop sends mined blocks to connected peers.
 func (pm *ProtocolManager) minedBroadcastLoop() {
 	defer pm.wg.Done()
